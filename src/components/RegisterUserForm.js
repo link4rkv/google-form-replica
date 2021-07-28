@@ -6,12 +6,7 @@ const UserSchema = {
   "title": "User Registration",
   "description": "A simple user registration form.",
   "type": "object",
-  "required": [
-    "name",
-    "email",
-    "age",
-    "password"
-  ],
+  "required": ["name"],
   "properties": {
     "name": {
       "type": "string",
@@ -37,8 +32,20 @@ const UserSchema = {
 
 const RegisterUserForm = () => {
   const ajv = new Ajv();
-  const [ ageErrorMessage, setAgeErrorMessage ] = useState(null);
-  const [ passwordErrorMessage, setPasswordErrorMessage ] = useState(null); 
+  const [ errorMessage, setErrorMessage ] = useState({
+    'name': null,
+    'email': null,
+    'age': null,
+    'password': null
+  }); 
+
+  const validationError = (errors) => {
+    const key = errors[0].dataPath.replace('.', '');
+    const error = {};
+    error[key] = key + ' ' + errors[0].message;
+    
+    return error;
+  }
 
   const addUserHandler = (event) => {
     event.preventDefault();
@@ -54,20 +61,9 @@ const RegisterUserForm = () => {
 
     const valid = validate(user)
     if (!valid) {
-      console.log(validate.errors)
-
-      if (validate.errors[0].dataPath.replace('.', '') === 'age') {
-        setAgeErrorMessage("Age " + validate.errors[0].message)
-        setPasswordErrorMessage(null);
-      }
-      if (validate.errors[0].dataPath.replace('.', '') === 'password') {
-        setPasswordErrorMessage("Password " + validate.errors[0].message)
-        setAgeErrorMessage(null);
-      }
-    } else {
-      setAgeErrorMessage(null);
-      setPasswordErrorMessage(null);
-    }
+      console.log(validate.errors);
+      setErrorMessage(validationError(validate.errors));
+    } 
   }
 
   return (
@@ -85,12 +81,12 @@ const RegisterUserForm = () => {
         <label htmlFor='age'>Age</label>
         <input type='number' id='age' name='age' />
       </div>
-      {ageErrorMessage && <p className={classes.error}>{ageErrorMessage}</p>}
+      {errorMessage.age && <p className={classes.error}>{errorMessage.age}</p>}
       <div className={classes.control}>
         <label htmlFor='password'>Password</label>
         <input type='password' id='password' name='password' />
       </div>
-      {passwordErrorMessage && <p className={classes.error}>{passwordErrorMessage}</p>}
+      {errorMessage.password && <p className={classes.error}>{errorMessage.password}</p>}
       <button>Register</button>
     </form>
   )
