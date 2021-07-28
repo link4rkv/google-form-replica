@@ -61,7 +61,6 @@ const RegisterUserForm = () => {
 
     const valid = validate(user)
     if (!valid) {
-      console.log(validate.errors);
       setErrorMessage(validationError(validate.errors));
     } 
   }
